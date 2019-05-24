@@ -48,7 +48,8 @@ Library
 
   Build-Depends:
     base >= 4 && < 5,
-    network >= 2 && < 3,
+    network >= 3,
+    network-bsd,
     mtl,
     bytestring,
     pretty,
