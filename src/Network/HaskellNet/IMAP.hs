@@ -24,12 +24,13 @@ module Network.HaskellNet.IMAP
     )
 where
 
-import Network
+import Network.Socket hiding (close)
 import Network.HaskellNet.BSStream
 import Network.HaskellNet.IMAP.Connection
 import Network.HaskellNet.IMAP.Types
 import Network.HaskellNet.IMAP.Parsers
 import qualified Network.HaskellNet.Auth as A
+import qualified Network.Connection as Conn
 
 import Data.ByteString (ByteString)
 import qualified Data.ByteString.Char8 as BS
@@ -116,9 +117,12 @@ data FlagsQuery = ReplaceFlags [Flag]
 -- establish connection
 
 connectIMAPPort :: String -> PortNumber -> IO IMAPConnection
-connectIMAPPort hostname port =
-    handleToStream <$> connectTo hostname (PortNumber port)
+connectIMAPPort hostname port = do
+    context <- Conn.initConnectionContext
+    connectionToStream <$> (Conn.connectTo context connParams)
     >>= connectStream
+  where
+    connParams = Conn.ConnectionParams hostname port Nothing Nothing
 
 connectIMAP :: String -> IO IMAPConnection
 connectIMAP hostname = connectIMAPPort hostname 143
